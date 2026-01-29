@@ -4,7 +4,6 @@ import "./globals.css";
 const josefin = Josefin_Sans({
   subsets: ["latin"],
   weight: ["400", "700"],
-  variable: "--font-josefin",
 });
 
 export const metadata = {
@@ -15,7 +14,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${josefin.variable}  antialiased `}>{children}</body>
+      <body className={`${josefin.className}  antialiased  bg-gray-50`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -32,3 +32,15 @@
   /* Font from layout.js */
   --font-sans: var(--font-josefin);
 }
+
+@layer components {
+  .check-gradient {
+    @apply border-transparent 
+           before:absolute 
+           before:inset-0 
+           before:rounded-full 
+           before:bg-gradient-to-br 
+           before:from-blue-400 
+           before:to-purple-500;
+  }
+}
