@@ -18,7 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // Sortable Item Component
-function SortableItem({ todo, toggleTodo, deleteTodo }) {
+function SortableItem({ todo, toggleTodo, deleteTodo, theme }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: todo.id });
 
@@ -31,14 +31,26 @@ function SortableItem({ todo, toggleTodo, deleteTodo }) {
     <li
       ref={setNodeRef}
       style={style}
-      className="flex items-center p-4 px-6 border-b border-gray-300 last:border-b-0"
+      className={`flex items-center py-3 px-6 border-b last:border-b-0 text-sm  cursor-pointer ${
+        theme === "dark" ? "border-purple-800" : "border-gray-300"
+      }`}
     >
-      {/* Circle - clickable only */}
+      {/* Circle */}
       <button
         onClick={() => toggleTodo(todo.id)}
-        className={`relative w-5 h-5 border rounded-full mr-4 shrink-0 transition-colors cursor-pointer
+        className={`relative w-5 h-5 border rounded-full mr-4 shrink-0 transition-colors cursor-pointer flex items-center justify-center
           ${todo.completed ? "check-gradient" : "border-gray-300 hover:border-purple-400"}`}
-      />
+      >
+        {todo.completed && (
+          <Img
+            src="/icon-check.svg"
+            alt="Check"
+            width={10}
+            height={10}
+            className="relative z-10 "
+          />
+        )}
+      </button>
 
       {/* Todo text - THIS is the drag handle */}
       <span
@@ -46,8 +58,10 @@ function SortableItem({ todo, toggleTodo, deleteTodo }) {
         {...listeners}
         className={`flex-1 transition-all duration-300 cursor-grab active:cursor-grabbing ${
           todo.completed
-            ? "line-through text-purple-300 font-light"
-            : "text-navy-850"
+            ? `line-through font-light ${theme === "dark" ? "text-purple-600" : "text-purple-300"}`
+            : theme === "dark"
+              ? "text-gray-300"
+              : "text-navy-850"
         }`}
       >
         {todo.text}
@@ -63,7 +77,6 @@ function SortableItem({ todo, toggleTodo, deleteTodo }) {
     </li>
   );
 }
-
 // Main TodoList Component
 export default function TodoList({
   todos,
@@ -72,9 +85,15 @@ export default function TodoList({
   filter,
   setFilter,
   clearCompleted,
+  theme,
 }) {
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 250, // 250ms = 0.25 seconds
+        tolerance: 5, // Allow 5px movement before canceling
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -114,7 +133,11 @@ export default function TodoList({
 
   return (
     <>
-      <div className="bg-white rounded-lg w-full shadow-lg mt-4">
+      <div
+        className={`rounded-lg w-full shadow-lg mt-4 overflow-hidden  ${
+          theme === "dark" ? "bg-navy-900" : "bg-white"
+        }`}
+      >
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -131,11 +154,16 @@ export default function TodoList({
                   todo={todo}
                   toggleTodo={toggleTodo}
                   deleteTodo={deleteTodo}
+                  theme={theme}
                 />
               ))}
 
               {/* Footer */}
-              <li className="flex justify-between items-center p-4 text-sm text-gray-600">
+              <li
+                className={`flex justify-between items-center p-4 text-sm ${
+                  theme === "dark" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 <span>
                   {todos.filter((todo) => !todo.completed).length} items left
                 </span>
@@ -144,25 +172,27 @@ export default function TodoList({
                 <div className="hidden md:flex gap-4 font-semibold">
                   <button
                     onClick={() => setFilter("all")}
-                    className={filter === "all" ? "text-blue-500" : ""}
+                    className={`cursor-pointer ${filter === "all" ? "text-blue-500" : ""}`}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setFilter("active")}
-                    className={filter === "active" ? "text-blue-500" : ""}
+                    className={`cursor-pointer ${filter === "active" ? "text-blue-500" : ""}`}
                   >
                     Active
                   </button>
                   <button
                     onClick={() => setFilter("completed")}
-                    className={filter === "completed" ? "text-blue-500" : ""}
+                    className={`cursor-pointer ${filter === "completed" ? "text-blue-500" : ""}`}
                   >
                     Completed
                   </button>
                 </div>
 
-                <button onClick={clearCompleted}>Clear Completed</button>
+                <button onClick={clearCompleted} className="cursor-pointer">
+                  Clear Completed
+                </button>
               </li>
             </ul>
           </SortableContext>
@@ -170,30 +200,38 @@ export default function TodoList({
       </div>
 
       {/* Mobile filters */}
-      <div className="md:hidden mt-4 p-3 bg-white rounded-lg shadow-lg">
+      <div
+        className={`md:hidden mt-4 p-4 rounded-lg shadow-lg ${
+          theme === "dark" ? "bg-navy-900" : "bg-white"
+        }`}
+      >
         <div className="flex justify-center gap-4 text-sm font-semibold text-gray-400">
           <button
             onClick={() => setFilter("all")}
-            className={filter === "all" ? "text-blue-500" : ""}
+            className={`cursor-pointer ${filter === "all" ? "text-blue-500" : ""}`}
           >
             All
           </button>
           <button
             onClick={() => setFilter("active")}
-            className={filter === "active" ? "text-blue-500" : ""}
+            className={`cursor-pointer ${filter === "active" ? "text-blue-500" : ""}`}
           >
             Active
           </button>
           <button
             onClick={() => setFilter("completed")}
-            className={filter === "completed" ? "text-blue-500" : ""}
+            className={`cursor-pointer ${filter === "completed" ? "text-blue-500" : ""}`}
           >
             Completed
           </button>
         </div>
       </div>
 
-      <p className="font-medium mt-10 text-center text-gray-600">
+      <p
+        className={`font-medium mt-10 text-center ${
+          theme === "dark" ? "text-gray-500" : "text-gray-600"
+        }`}
+      >
         Drag and drop to reorder list
       </p>
     </>

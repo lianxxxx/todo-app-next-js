@@ -9,6 +9,9 @@ const josefin = Josefin_Sans({
 export const metadata = {
   title: "Todo App",
   description: "NextJs",
+  icons: {
+    icon: "/icon-logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

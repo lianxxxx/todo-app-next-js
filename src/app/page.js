@@ -5,15 +5,21 @@ import TodoInput from "@/components/TodoInput";
 import TodoList from "@/components/TodoList";
 
 export default function Home() {
-  const [todos, setTodos] = useState(() => {
-    const savedTodos = localStorage.getItem("todos");
-    return savedTodos ? JSON.parse(savedTodos) : [];
-  });
+  const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
-  const [theme, setTheme] = useState(() => {
+  const [theme, setTheme] = useState("light");
+
+  // Initialize todos and theme from localStorage only on client
+  useEffect(() => {
+    const savedTodos = localStorage.getItem("todos");
+    if (savedTodos) {
+      setTodos(JSON.parse(savedTodos));
+    }
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light";
-  });
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
 
   // Save todos to localStorage
   useEffect(() => {
@@ -47,22 +53,25 @@ export default function Home() {
   };
 
   return (
-    <main className="min-w-full">
-      <section className="relative">
-        <BgImage theme={theme} toggleTheme={toggleTheme} />
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full px-6 max-w-xl z-10">
-          <TodoInput addTodo={addTodo} theme={theme} />
-          <TodoList
-            todos={todos}
-            setTodos={setTodos}
-            deleteTodo={deleteTodo}
-            filter={filter}
-            setFilter={setFilter}
-            clearCompleted={clearCompleted}
-            theme={theme}
-          />
-        </div>
-      </section>
+    <main
+      className={`min-w-full min-h-screen pb-20 ${
+        theme === "dark" ? "bg-navy-950" : "bg-gray-50"
+      }`}
+    >
+      <BgImage theme={theme} toggleTheme={toggleTheme} />
+
+      <div className="relative -mt-24 px-6 max-w-xl mx-auto z-30">
+        <TodoInput addTodo={addTodo} theme={theme} />
+        <TodoList
+          todos={todos}
+          setTodos={setTodos}
+          deleteTodo={deleteTodo}
+          filter={filter}
+          setFilter={setFilter}
+          clearCompleted={clearCompleted}
+          theme={theme}
+        />
+      </div>
     </main>
   );
 }
